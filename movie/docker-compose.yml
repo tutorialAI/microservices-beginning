@@ -23,7 +23,13 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - "6379:6379"    
+      - "6379:6379"
+  netcat:
+    build:
+      context: .
+    image: chainguard/netcat:latest
+    networks:
+      - secondnetwork
 networks:
   secondnetwork:
     driver: bridge

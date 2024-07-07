@@ -15,11 +15,13 @@ services:
       - mynetwork
 
   php-fpm:
-    image: php:fpm-alpine
+    build: 
+      dockerfile: ./Dockerfile
     networks:
       - mynetwork
     volumes:
       - ./app:/var/www/html/
+      - ./config/php.ini:/usr/local/etc/php/php.ini
 
   mysql:
     image: mysql:latest
