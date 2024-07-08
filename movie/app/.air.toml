@@ -1,0 +1,18 @@
+# .air.toml
+[build]
+  bin = "app"                     # Binary name
+  cmd = "go build -o ./tmp/app main.go" # Command to build the project
+  full_bin = "./tmp/app"
+  log = "build-errors.log"
+
+[run]
+  cmd = "./tmp/app"               # Command to run the application
+  watch_dirs = ["."]
+  exclude_dirs = ["vendor", "tmp", "node_modules"]
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  delay = 1000                    # Delay in milliseconds before restarting
+  kill_signal = "SIGTERM"
+  log = "run-errors.log"
+
+[log]
+  level = "debug"

@@ -1,35 +1,33 @@
 version: "3"
 services:
-  nginx:
-    image: nginx:latest
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "90:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #     - ./app:/var/www/html
+  #     - ./logs/nginx:/var/log/nginx/
+  #   networks:
+  #     - secondnetwork
+  #   depends_on:
+  #     - goservice
+  goservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
     ports:
-      - "90:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./app:/var/www/html
-      - ./logs/nginx:/var/log/nginx/
+      - "90:8080"
+    command: air -c .air.toml
     networks:
       - secondnetwork
-    depends_on:
-      - php-fpm
-  php-fpm:
-    image: php:fpm-alpine
-    networks:
-      - secondnetwork
-    volumes:
-      - ./app:/var/www/html/
-      - ./logs/php.log:/var/log/fpm-php.www.log
   redis:
     image: redis:latest
     restart: always
     ports:
       - "6379:6379"
-  netcat:
-    build:
-      context: .
-    image: chainguard/netcat:latest
-    networks:
-      - secondnetwork
 networks:
   secondnetwork:
     driver: bridge
