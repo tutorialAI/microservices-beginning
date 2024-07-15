@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 services:
   # nginx:
   #   image: nginx:latest
@@ -22,12 +22,12 @@ services:
       - "90:8080"
     command: air -c .air.toml
     networks:
-      - secondnetwork
+      - my-network
   redis:
     image: redis:latest
     restart: always
     ports:
       - "6379:6379"
 networks:
-  secondnetwork:
-    driver: bridge
+  my-network:
+    external: true

@@ -1,31 +1,69 @@
 <?php
-    echo 'auth 1';
 
-    $producer = new \RdKafka\Producer();
-    //$producer->setLogLevel(LOG_DEBUG);
+namespace Kwn\Monolog\Handler;
 
-    if ($producer->addBrokers("kafka:9093") < 1) {
-        echo "Error to adding brokers";
-        exit();
+use Monolog\Formatter\LineFormatter;
+use Monolog\Logger;
+use RdKafka\Consumer;
+use RdKafka\ConsumerTopic;
+use RdKafka\Producer;
+use RdKafka\ProducerTopic;
+class KafkaHandlerIntegrationTest
+{
+
+    const BROKER = 'localhost:9092';
+    const TOPIC = 'test';
+    const PARTITION = 0;
+    const MESSAGE = 'test message';
+    public function setUp()
+    {
+        if (!extension_loaded('rdkafka')) {
+            $this->markTestSkipped('php-rdkafka extension is not loaded. Please check your php.ini file.');
+        }
+        list($host, $port) = explode(':', self::BROKER);
+        $connection = @fsockopen($host, $port);
+        if (false === $connection) {
+            $this->markTestSkipped('Kafka broker is not working. Please turn it on in order to pass the test.');
+        } else {
+            fclose($connection);
+        }
     }
+    public function testMonologPublishesMessageToKafkaBroker()
+    {
+        $producerTopic = $this->buildProducerTopic();
+        $handler = new KafkaHandler($producerTopic);
+        $handler->setFormatter(new LineFormatter('%message%'));
+        $monolog = new Logger('kafka-logger');
+        $monolog->pushHandler($handler);
+        $monolog->critical(self::MESSAGE);
+        sleep(2);
+        $consumerTopic = $this->buildConsumerTopic();
+        $consumerTopic->consumeStart(self::PARTITION, rd_kafka_offset_tail(1));
+        $message = $consumerTopic->consume(self::PARTITION, 1000);
+        $consumerTopic->consumeStop(self::PARTITION);
+        $this->assertEquals(self::MESSAGE, $message->payload);
+    }
+    /**
+     * @return ProducerTopic
+     */
+    private function buildProducerTopic()
+    {
+        $producer = new Producer();
+        $producer->addBrokers(self::BROKER);
+        /** @var ProducerTopic $producerTopic */
+        $producerTopic = $producer->newTopic(self::TOPIC);
+        $producerTopic->produce(self::PARTITION, 0, 'initial message for a topic creation');
+        return $producerTopic;
+    }
+    /**
+     * @return ConsumerTopic
+     */
+    private function buildConsumerTopic()
+    {
+        $consumer = new Consumer();
+        $consumer->addBrokers(self::BROKER);
+        return $consumer->newTopic(self::TOPIC);
+    }
+}
 
-
-    $topic = $producer->newTopic("test");
-
-    
-    $topic->produce(RD_KAFKA_PARTITION_UA, 0, "Message 10");
-    
-   
-
-    // for ($flushRetries = 0; $flushRetries < 10; $flushRetries++) {
-    //     $result = $producer->flush(10000);
-    //     if (RD_KAFKA_RESP_ERR_NO_ERROR === $result) {
-    //         break;
-    //     }
-    // }
-    
-    // if (RD_KAFKA_RESP_ERR_NO_ERROR !== $result) {
-    //     throw new \RuntimeException('Was unable to flush, messages might be lost!');
-    // }
-
-    echo PHP_EOL . "OK";
+(new KafkaHandlerIntegrationTest())->setUp();
