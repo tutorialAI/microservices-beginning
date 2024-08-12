@@ -23,18 +23,16 @@ services:
       - ./app:/var/www/html/
       - ./config/php.ini:/usr/local/etc/php/php.ini
 
-  mysql:
-    image: mysql:latest
-    restart: always
+  postgres:
+    image: postgres:latest
     environment:
-      MYSQL_ROOT_PASSWORD: your_root_password
-      MYSQL_DATABASE: your_database_name
-      MYSQL_USER: your_mysql_user
-      MYSQL_PASSWORD: your_mysql_password
+      POSTGRES_DB: "habrdb"
+      POSTGRES_USER: "habrpguser"
+      POSTGRES_PASSWORD: "pgpwd4habr"
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./postgres_data:/docker-entrypoint-initdb.d
     networks:
       - mynetwork
 

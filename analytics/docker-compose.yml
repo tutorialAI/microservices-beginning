@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  goservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    ports:
+      - "91:8080"
+    networks:
+      - my-network
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "18123:8123"
+    environment:
+      - CLICKHOUSE_DB=analytics
+      - CLICKHOUSE_USER=root
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - CLICKHOUSE_PASSWORD=1234
+    volumes:
+      - ./clickhouse_data:/var/lib/clickhouse/
+      - ./clickhouse_logs:/var/log/clickhouse-server/
+    networks:
+      - my-network
+networks:
+  my-network:
+    external: true

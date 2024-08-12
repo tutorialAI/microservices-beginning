@@ -24,7 +24,7 @@ services:
     networks:
       - my-network
     volumes:
-      - kafka-data:/kafka
+      - ./kafka_data:/bitnami/kafka/data
     ulimits:
       core:
         soft: -1

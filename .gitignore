@@ -1,4 +1,8 @@
 */mysql_data/
+*/clickhouse_data/
+*/clickhouse_logs/
+*/postgres_data/
 */kafka_data/
 */logs/
+*/app/tmp/
 .DS_Store

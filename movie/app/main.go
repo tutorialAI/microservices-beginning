@@ -1,42 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
-	"github.com/IBM/sarama"
+	"github.com/joho/godotenv"
 )
 
+// init is invoked before main()
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 func main() {
-	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true
-	config.Version = sarama.V2_7_0_0 // Ensure this matches your Kafka version
+	githubUsername, exists := os.LookupEnv("GITHUB_USERNAME")
 
-	brokers := []string{"kafka:9092"} // or "kafka:9092" if running within Docker network
-	client, err := sarama.NewClient(brokers, config)
-	if err != nil {
-		log.Fatalf("Error creating Kafka: %v", err)
+	if exists {
+		fmt.Println(githubUsername)
 	}
 
-	producer, err := sarama.NewSyncProducerFromClient(client)
-	if err != nil {
-		log.Fatalf("Error creating Kafka producer: %v", err)
+	githubAPIKey, exists := os.LookupEnv("GITHUB_API_KEY")
+
+	if exists {
+		fmt.Println(githubAPIKey)
 	}
-
-	defer func() {
-		if err := producer.Close(); err != nil {
-			log.Fatalf("Error closing Kafka producer: %v", err)
-		}
-	}()
-
-	message := &sarama.ProducerMessage{
-		Topic: "test",
-		Value: sarama.StringEncoder("Hello Kafka"),
-	}
-
-	partition, offset, err := producer.SendMessage(message)
-	if err != nil {
-		log.Fatalf("Error sending message: %v", err)
-	}
-
-	log.Printf("Message sent to partition %d at offset %d", partition, offset)
 }
