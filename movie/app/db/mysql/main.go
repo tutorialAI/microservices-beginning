@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	types "app/broker"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -17,6 +19,10 @@ type User struct {
 var db *sql.DB
 
 func Connect() {
+	alex := types.Account{ID: 1, Name: "Alex"}
+
+	fmt.Println(alex)
+
 	fmt.Println("trying to connect to mysql")
 
 	// Capture connection properties.
