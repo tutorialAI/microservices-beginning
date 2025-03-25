@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"encoding/json"
@@ -7,15 +7,18 @@ import (
 
 	"fmt"
 
+	"app/internal/models"
+	movieRepo "app/internal/repository"
+
 	"github.com/gorilla/mux"
 )
 
 type APIServer struct {
 	listenAddr string
-	store      Storage
+	store      *movieRepo.PostgresStore
 }
 
-func NewAPIServer(listenAddr string, store Storage) *APIServer {
+func NewAPIServer(listenAddr string, store *movieRepo.PostgresStore) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
 		store:      store,
@@ -48,16 +51,21 @@ func (s *APIServer) handleMovies(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) CreateMovie(w http.ResponseWriter, r *http.Request) error {
-	req := new(CreateMovieRequest)
+	req := &models.CreateMovieRequest{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
 
-	if err := s.store.CreateMovie(req.Title, req.ReleaseYear, req.Link); err != nil {
+	movieID, err := s.store.CreateMovie(req.Title, req.ReleaseYear, req.Link)
+	if err != nil {
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, req.Title+"was created succesfully")
+	return WriteJSON(
+		w,
+		http.StatusOK,
+		fmt.Sprintf("%s with id %d was created succesfully", req.Title, movieID),
+	)
 }
 
 func (s *APIServer) GetMovies(w http.ResponseWriter, r *http.Request) error {

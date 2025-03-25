@@ -4,5 +4,8 @@
 */postgres_data/
 */kafka_data/
 */logs/
-*/app/tmp/
+*/bin/
 .DS_Store
+.idea
+.vscode
+.devcontainer

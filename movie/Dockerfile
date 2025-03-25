@@ -3,6 +3,9 @@ FROM golang:latest
 
 # Install necessary tools
 RUN go install github.com/air-verse/air@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
+EXPOSE 8080 2345
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -17,5 +20,7 @@ RUN go mod download
 # Copy the rest of the application code
 COPY app .
 
+RUN mkdir logs
+
 # Command to run the Air live reload tool
-CMD ["air", "-c", ".air.toml"]
+CMD ["air", "-c", ".test.toml"]

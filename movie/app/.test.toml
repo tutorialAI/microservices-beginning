@@ -1,0 +1,12 @@
+# .air.toml
+[build]
+  cmd = "go build -gcflags='all=-N -l' -o app main.go"
+  bin = "app"
+  full_bin = "dlv --log=true --headless --accept-multiclient --listen=:2345 --api-version=2 debug app 1>app.log 2>gc.log"
+  exclude_dirs = ["vendor", "tmp", "node_modules"]
+  include_ext = ["go", "tpl", "tmpl", "html"]
+  delay = 1000
+  log = "build-errors.log"
+
+[log]
+  level = "debug"
